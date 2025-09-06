@@ -146,6 +146,11 @@ function handleWebsocketMessage(msg: RawData): void {
 	if (ws && payload.path === "/devices/list") {
 		streamDeck.logger.debug("sent device list request");
 		const deviceList = payload as DeviceList;
+		if (!deviceList.payload.deviceInfos) {
+			cleanupWebSocket();
+			scheduleReconnect();
+			return;
+		}
 		devices = deviceList.payload.deviceInfos.filter((d) => d?.capabilities?.hasBatteryStatus);
 
 		for (const [, inst] of instances.entries()) {
